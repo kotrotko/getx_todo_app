@@ -1,25 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-//import 'package:get/get_core/src/get_main.dart';
 import 'package:getx_todo_app/controllers/TodoController.dart';
 import '../models/Todo.dart';
 
 class TodoScreen extends StatelessWidget {
-  //const TodoScreen({Key? key}) : super(key: key);
-  final TodoController todoController = Get.find();
-  final int index;
+  final TodoController todoController = Get.find<TodoController>();
+  final int? index;
 
-  TodoScreen({required this.index});
+  TodoScreen({this.index}); //index of the item you're editing
+  // if you just are adding a new item, the index will be null.
 
   @override
   Widget build(BuildContext context) {
     String text = '';
-    if(this.index != null){ //Here is a problem
-      text = todoController.todos[index].text;
+    //if(this.index! >= 0 && this.index! < todoController.todos.length){ //Here is a problem
+    if(this.index != null){
+      text = todoController.todos[index!].text;
     }
     TextEditingController textEditingController = TextEditingController(
-      text: text
+      text: text,
     );
+
     return Scaffold(
       body: Container(
         padding: EdgeInsets.all(12.0),
@@ -55,12 +56,21 @@ class TodoScreen extends StatelessWidget {
                 ),
                 ElevatedButton(
                     onPressed: (){
-                      todoController.todos.add(
-                        Todo(text: textEditingController.text)
-                      );
-                      Get.back();
-                    },
-                    child: Text('Add'),
+                      //if (todoController.todos.isEmpty || index == null) {
+                      if (this.index == null) {
+                        todoController.todos.add(
+                          Todo(text: textEditingController.text));
+                      }else{
+                        var editing = todoController.todos[index!];
+                        editing.text = textEditingController.text;
+                        todoController.todos[index!] = editing;
+                        //todoController.todos[index!].text = textEditingController.text;
+                      }
+                      //textEditingController.clear();
+                      Get.back();},
+
+                    //child: Text((todoController.todos.isEmpty || index == null) ? 'Add' : 'Edit'),
+                    child: Text((this.index == null) ? 'Add' : 'Edit'),
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all<Color>(Colors.green),
                     )
